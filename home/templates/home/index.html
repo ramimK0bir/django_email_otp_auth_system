@@ -1,0 +1,224 @@
+{% extends "utility/base.home.html" %}
+{% block title %}Home{% endblock title %}
+{% block head %}
+<style>
+  @keyframes floatUp {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.3; }
+    100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+  }
+  @keyframes fadeSlideDown {
+    from { opacity: 0; transform: translateY(-40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes glowPulse {
+    0%, 100% { text-shadow: 0 0 20px rgba(99,102,241,0.5), 0 0 40px rgba(99,102,241,0.3); }
+    50% { text-shadow: 0 0 40px rgba(99,102,241,0.9), 0 0 80px rgba(99,102,241,0.5), 0 0 120px rgba(139,92,246,0.3); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+  @keyframes btnPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(99,102,241,0.5); }
+    50% { box-shadow: 0 0 0 12px rgba(99,102,241,0); }
+  }
+  @keyframes orbit {
+    from { transform: rotate(0deg) translateX(120px) rotate(0deg); }
+    to { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
+  }
+  @keyframes iconFloat {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    33% { transform: translateY(-15px) rotate(5deg); }
+    66% { transform: translateY(-8px) rotate(-3deg); }
+  }
+
+  body { background: #0f0f1a; overflow-x: hidden; }
+
+  .hero-bg {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 40%, #16213e 70%, #0f3460 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: floatUp linear infinite;
+  }
+
+  .hero-title {
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    font-weight: 900;
+    background: linear-gradient(90deg, #6366f1, #a78bfa, #38bdf8, #6366f1);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 3s linear infinite, fadeSlideDown 0.8s ease forwards;
+  }
+
+  .hero-sub {
+    color: rgba(255,255,255,0.65);
+    font-size: 1.15rem;
+    max-width: 540px;
+    animation: fadeSlideUp 0.8s ease 0.3s both;
+  }
+
+  .btn-glow {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border: none;
+    color: #fff;
+    padding: 14px 40px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    border-radius: 50px;
+    animation: btnPulse 2s infinite, fadeSlideUp 0.8s ease 0.5s both;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-glow:hover { transform: scale(1.07); box-shadow: 0 8px 30px rgba(99,102,241,0.6); color: #fff; }
+
+  .btn-outline-glow {
+    background: transparent;
+    border: 2px solid rgba(99,102,241,0.6);
+    color: rgba(255,255,255,0.85);
+    padding: 13px 38px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    border-radius: 50px;
+    animation: fadeSlideUp 0.8s ease 0.6s both;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-outline-glow:hover { background: rgba(99,102,241,0.15); border-color: #6366f1; color: #fff; transform: scale(1.05); }
+
+  .feature-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 28px 24px;
+    text-align: center;
+    color: #fff;
+    transition: transform 0.3s, background 0.3s, border-color 0.3s;
+    animation: fadeSlideUp 0.8s ease both;
+  }
+  .feature-card:hover { transform: translateY(-8px); background: rgba(99,102,241,0.1); border-color: rgba(99,102,241,0.4); }
+  .feature-icon { font-size: 2.2rem; margin-bottom: 12px; animation: iconFloat 3s ease-in-out infinite; display: block; }
+
+  .orbit-ring {
+    position: absolute;
+    width: 300px; height: 300px;
+    border: 1px solid rgba(99,102,241,0.15);
+    border-radius: 50%;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .orbit-dot {
+    width: 10px; height: 10px;
+    background: #6366f1;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%; left: 50%;
+    margin: -5px;
+    animation: orbit 6s linear infinite;
+    box-shadow: 0 0 10px #6366f1;
+  }
+  .orbit-dot:nth-child(2) { animation-duration: 9s; animation-delay: -3s; background: #38bdf8; box-shadow: 0 0 10px #38bdf8; }
+  .orbit-dot:nth-child(3) { animation-duration: 12s; animation-delay: -6s; background: #a78bfa; box-shadow: 0 0 10px #a78bfa; }
+
+  .grid-overlay {
+    position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(99,102,241,0.05) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(99,102,241,0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+</style>
+{% endblock head %}
+
+{% block body %}
+<div class="hero-bg px-3 py-5" id="heroSection">
+  <div class="grid-overlay"></div>
+
+  <!-- Orbit rings -->
+  <div class="orbit-ring" style="width:500px;height:500px;opacity:0.4;">
+    <div class="orbit-dot"></div>
+    <div class="orbit-dot"></div>
+    <div class="orbit-dot"></div>
+  </div>
+  <div class="orbit-ring" style="width:700px;height:700px;opacity:0.2;"></div>
+
+  <!-- Hero content -->
+  <div class="text-center position-relative" style="z-index:2;">
+    <div class="mb-3" style="animation: fadeSlideDown 0.6s ease both;">
+      <span style="background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);color:#a78bfa;padding:6px 18px;border-radius:50px;font-size:0.85rem;font-weight:600;letter-spacing:1px;">
+        ⚡ FAST &amp; SECURE PAYMENTS
+      </span>
+    </div>
+
+    <h1 class="hero-title mb-3">Welcome to {{site_name}}</h1>
+    <p class="hero-sub mx-auto mb-5">Fast, secure, and simple digital payments.<br>Send and receive money with ease.</p>
+
+    <div class="d-flex gap-3 flex-wrap justify-content-center">
+      <a href="{% url 'SignupHOME' %}" class="btn-glow">Get Started →</a>
+      <a href="{% url 'LoginHOME' %}" class="btn-outline-glow">Sign In</a>
+    </div>
+  </div>
+
+  <!-- Feature cards -->
+  <div class="row g-3 mt-5 position-relative" style="z-index:2;max-width:800px;width:100%;">
+    <div class="col-12 col-md-4">
+      <div class="feature-card" style="animation-delay:0.7s;">
+        <span class="feature-icon">🔒</span>
+        <div class="fw-bold mb-1">Bank-Level Security</div>
+        <div style="color:rgba(255,255,255,0.5);font-size:0.85rem;">End-to-end encrypted transactions</div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="feature-card" style="animation-delay:0.85s;">
+        <span class="feature-icon" style="animation-delay:0.5s;">⚡</span>
+        <div class="fw-bold mb-1">Instant Transfers</div>
+        <div style="color:rgba(255,255,255,0.5);font-size:0.85rem;">Money moves in seconds, not days</div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="feature-card" style="animation-delay:1s;">
+        <span class="feature-icon" style="animation-delay:1s;">🌐</span>
+        <div class="fw-bold mb-1">Always Available</div>
+        <div style="color:rgba(255,255,255,0.5);font-size:0.85rem;">24/7 access from any device</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Generate floating particles
+  const hero = document.getElementById('heroSection');
+  for (let i = 0; i < 25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 6 + 2;
+    const colors = ['rgba(99,102,241,0.5)', 'rgba(167,139,250,0.5)', 'rgba(56,189,248,0.4)', 'rgba(255,255,255,0.2)'];
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      animation-duration:${Math.random()*10+8}s;
+      animation-delay:${Math.random()*10}s;
+    `;
+    hero.appendChild(p);
+  }
+</script>
+{% endblock body %}

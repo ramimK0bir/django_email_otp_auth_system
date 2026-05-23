@@ -1,0 +1,224 @@
+{% extends "utility/base.home.html" %}
+{% block title %}Verify Account{% endblock title %}
+{% block head %}
+<style>
+  @keyframes fadeSlideUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes bgShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  @keyframes cardIn { from { opacity:0; transform:translateY(50px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
+  @keyframes emailPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(99,102,241,0.3); }
+    50% { box-shadow: 0 0 0 8px rgba(99,102,241,0); }
+  }
+  @keyframes digitBounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+  }
+  @keyframes successPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+
+  body { background: #0f0f1a; }
+
+  .auth-bg {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f0f1a, #1a1a2e, #16213e, #0f3460, #1a1a2e);
+    background-size: 400% 400%;
+    animation: bgShift 10s ease infinite;
+    display: flex; align-items: center; justify-content: center;
+    padding: 2rem 1rem; position: relative; overflow: hidden;
+  }
+
+  .auth-card {
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 2.5rem;
+    width: 100%; max-width: 440px;
+    animation: cardIn 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+  }
+
+  .auth-icon-wrap {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1rem;
+    box-shadow: 0 0 30px rgba(99,102,241,0.5);
+    animation: emailPulse 2s ease infinite, fadeSlideUp 0.5s ease 0.2s both;
+  }
+
+  .auth-title { color: #fff; font-weight: 800; font-size: 1.6rem; animation: fadeSlideUp 0.5s ease 0.3s both; }
+  .auth-sub { color: rgba(255,255,255,0.45); font-size: 0.88rem; animation: fadeSlideUp 0.5s ease 0.35s both; }
+  .email-highlight { color: #818cf8; font-weight: 600; }
+
+  /* OTP boxes */
+  .otp-boxes {
+    display: flex; gap: 10px; justify-content: center;
+    animation: fadeSlideUp 0.5s ease 0.45s both;
+  }
+  .otp-box {
+    width: 52px; height: 60px;
+    background: rgba(255,255,255,0.06);
+    border: 2px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
+    color: #fff; font-size: 1.6rem; font-weight: 800;
+    text-align: center;
+    transition: all 0.2s;
+    caret-color: #6366f1;
+  }
+  .otp-box:focus {
+    border-color: #6366f1;
+    background: rgba(99,102,241,0.1);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+    outline: none;
+    animation: digitBounce 0.3s ease;
+  }
+  .otp-box.filled {
+    border-color: rgba(99,102,241,0.6);
+    background: rgba(99,102,241,0.08);
+    animation: successPop 0.2s ease;
+  }
+  .otp-box.error { border-color: #ef4444; animation: shake 0.4s ease; }
+
+  /* Hidden real input */
+  #otp { position: absolute; opacity: 0; pointer-events: none; }
+
+  .btn-auth {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border: none; color: #fff;
+    padding: 13px; font-weight: 700; font-size: 1rem;
+    border-radius: 12px; width: 100%;
+    transition: all 0.3s;
+    position: relative; overflow: hidden;
+    animation: fadeSlideUp 0.5s ease 0.6s both;
+  }
+  .btn-auth::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%);
+    transform: translateX(-100%); transition: transform 0.5s;
+  }
+  .btn-auth:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99,102,241,0.5); }
+  .btn-auth:hover::after { transform: translateX(100%); }
+
+  .auth-link { color: #818cf8; text-decoration: none; font-weight: 600; transition: color 0.2s; }
+  .auth-link:hover { color: #a78bfa; }
+  .glow-blob { position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none; opacity: 0.15; }
+
+  .timer { color: rgba(255,255,255,0.35); font-size: 0.82rem; animation: fadeSlideUp 0.5s ease 0.7s both; }
+  .timer span { color: #818cf8; font-weight: 700; }
+</style>
+{% endblock head %}
+
+{% block body %}
+<div class="auth-bg">
+  <div class="glow-blob" style="width:350px;height:350px;background:#6366f1;top:-80px;left:-80px;"></div>
+  <div class="glow-blob" style="width:300px;height:300px;background:#a78bfa;bottom:-60px;right:-60px;"></div>
+
+  <div class="auth-card">
+    <div class="text-center mb-4">
+      <div class="auth-icon-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="white" viewBox="0 0 16 16">
+          <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2zm13 2.383-4.708 2.825L15 11.105V5.383zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741zM1 11.105l4.708-2.897L1 5.383v5.722z"/>
+        </svg>
+      </div>
+      <h3 class="auth-title">Check Your Email</h3>
+      <p class="auth-sub">We sent a 6-digit code to<br><span class="email-highlight">{{email}}</span></p>
+    </div>
+
+    <form action="{% url 'VerifyHOME' %}" method="post" id="otpForm">
+      {% csrf_token %}
+      <input type="text" id="otp" name="otp" maxlength="6" autocomplete="one-time-code">
+
+      <div class="otp-boxes mb-4" id="otpBoxes">
+        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+      </div>
+
+      <button type="submit" class="btn-auth" id="verifyBtn">Verify Account ✓</button>
+
+      <p class="text-center mt-3 mb-1 timer" id="timerText">
+        Code expires after 5 minutes of creation.
+      </p>
+      <p class="text-center mb-0" style="color:rgba(255,255,255,0.35);font-size:0.85rem;animation:fadeSlideUp 0.5s ease 0.75s both;">
+        Didn't receive it?
+        <a href="{% url 'VerifyHOME' %}?resend=1" class="auth-link">Resend OTP</a>
+      </p>
+    </form>
+  </div>
+</div>
+
+<script>
+  const boxes = document.querySelectorAll('.otp-box');
+  const hiddenInput = document.getElementById('otp');
+
+  boxes.forEach((box, i) => {
+    box.addEventListener('input', e => {
+      const val = e.target.value.replace(/\D/g, '');
+      box.value = val;
+      if (val) {
+        box.classList.add('filled');
+        if (i < 5) boxes[i + 1].focus();
+      } else {
+        box.classList.remove('filled');
+      }
+      syncHidden();
+    });
+
+    box.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !box.value && i > 0) {
+        boxes[i - 1].focus();
+        boxes[i - 1].value = '';
+        boxes[i - 1].classList.remove('filled');
+        syncHidden();
+      }
+    });
+
+    box.addEventListener('paste', e => {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+      text.split('').forEach((ch, idx) => {
+        if (boxes[idx]) { boxes[idx].value = ch; boxes[idx].classList.add('filled'); }
+      });
+      syncHidden();
+      if (text.length === 6) document.getElementById('otpForm').submit();
+    });
+  });
+
+  function syncHidden() {
+    hiddenInput.value = Array.from(boxes).map(b => b.value).join('');
+  }
+
+  boxes[0].focus();
+
+  // Countdown timer
+  let secs = 300;
+  const cd = document.getElementById('countdown');
+  const interval = setInterval(() => {
+    secs--;
+    if (secs <= 0) { clearInterval(interval); cd.textContent = '00:00'; cd.style.color = '#ef4444'; return; }
+    const m = String(Math.floor(secs / 60)).padStart(2, '0');
+    const s = String(secs % 60).padStart(2, '0');
+    cd.textContent = `${m}:${s}`;
+    if (secs <= 60) cd.style.color = '#ef4444';
+  }, 1000);
+</script>
+{% endblock body %}
