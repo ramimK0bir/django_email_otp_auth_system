@@ -55,6 +55,7 @@ def send_email(email,subject,message, link  ) :
 def generate_otp():
         return str(secrets.randbelow(900000) + 100000)
 if __name__=="__main__" :
-    send_email("kobirbiddut81@gmail.com", "I don't know", "This is body of my first email.")
+    pass
+
 
 
